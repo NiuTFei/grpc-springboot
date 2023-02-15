@@ -1,0 +1,25 @@
+grpc:
+  server:
+    host: localhost
+    port: 50051
+
+spring:
+  kafka:
+    bootstrap-servers: 47.109.77.112:9092
+    producer: # 生产者
+      retries: 3 # 设置大于0的值，则客户端会将发送失败的记录重新发送
+      batch-size: 16384 #kafka本地线程会去缓冲区中一次拉16k的数据，发送到broker
+      buffer-memory: 33554432 #kafka默认会创建一个消息缓冲区，用来存放要发送的消息，缓冲区是32m
+      acks: 1 #多副本之间的leader已经收到消息，并把消息写入到本地的log中，才 会返回ack给生产者，性能和安全性是最均衡的
+      # 指定消息key和消息体的编解码方式
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: default-group #消费者组
+      enable-auto-commit: true #消费者手动提交offset(false) 自动提交(true)
+      auto-offset-reset: earliest #第一次从头开始消费。之后开始消费新消息  latest 消费新消息
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      max-poll-records: 500 #一次poll最大拉取消息的条数，可以根据消费速度的快慢来设置
+#      auto-commit-interval: 1000   #自动提交offset的间隔时间，消费者自动提交offset时添加此配置
+#      自动提交会丢消息。因为消费者在消费前提交offset，有可能提交完后还没消费时消费者挂了。
